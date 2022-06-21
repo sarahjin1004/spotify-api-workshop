@@ -3,3 +3,14 @@ extends layout.pug
 block content
     h1 Welcome #{user.display_name}!
     img(src=user.images[0].url, class="circular_image")
+
+    table 
+      each t in tracks 
+        tr 
+          - var artist_name = t.track.artists[0].name 
+          - var song_name = t.track.name 
+          - var preview_url = t.track.preview_url
+
+          td #{artist_name}
+          td #{song_name}
+          td: a(href=preview_url) Preview
