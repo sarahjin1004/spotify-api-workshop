@@ -98,18 +98,18 @@ app.post("/recommendations-for-user", async function(req, res){
   })
   const track_data = await getData("/me/top/tracks?" + params1);
   const artists_data = await getData("/me/top/artists?" + params1);
-  const seed_tracks = track_data.items.map(o => o.id);
-  const seed_artists = artists_data.items.map(o => o.id);
-  console.log(track_data.items.map(o=>o.name));
-  console.log(artists_data.items.map(o=>o.name));
+  const seed_tracks = track_data.items.map(o => o.id).slice(0,3).join(',');
+  const seed_artists = artists_data.items.map(o => o.id)[0];
+  console.log(seed_tracks);
+  console.log(seed_artists);
   const params = new URLSearchParams({
-    seed_artist: seed_artists,
+    seed_artists: seed_artists,
     seed_genres: seed_genres,
     seed_tracks: seed_tracks
   });
   const data = await getData("/recommendations?" + params);
   console.log(data);
-  //res.render("recommendation-for-user", {tracks: data.tracks });
+  res.render("recommendation-for-user", {tracks: data.tracks });
 })
 
 app.get("/recommendations", async (req, res) => {
@@ -117,7 +117,7 @@ app.get("/recommendations", async (req, res) => {
   const track_id = req.query.track;
 
   const params = new URLSearchParams({
-    seed_artist: artist_id,
+    seed_artists: artist_id,
     seed_genres: "rock",
     seed_tracks: track_id,
   });
