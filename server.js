@@ -94,7 +94,7 @@ app.post("/recommendations-for-user", async function(req, res){
   const params1 = new URLSearchParams({
     limit: 20,
     offset: 0,
-    time_range: "long_term"
+    time_range: "medium_term"
   })
   const track_data = await getData("/me/top/tracks?" + params1);
   const artists_data = await getData("/me/top/artists?" + params1);
