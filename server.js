@@ -1,16 +1,23 @@
 import express from "express";
 import fetch from "node-fetch";
-
+import bodyParser from "body-parser";
+import dotenv from "dotenv";
+dotenv.config();
+//var express = require('express');
+//var fetch = require('node-fetch-commonjs');
+//var bodyParser = require("body-parser");
+//require('dotenv').config();
 const app = express();
 
 app.set("views", "./views");
 app.set("view engine", "pug");
 
 app.use(express.static("public"));
+app.use(bodyParser.urlencoded({extended: true}));
 
 const redirect_uri = "http://localhost:3000/callback";
-const client_id = "";
-const client_secret = "";
+const client_id = process.env['CLIENT_ID'];
+const client_secret = process.env['CLIENT_SECRET'];
 
 global.access_token;
 
@@ -22,7 +29,7 @@ app.get("/authorize", (req, res) => {
   var auth_query_parameters = new URLSearchParams({
     response_type: "code",
     client_id: client_id,
-    scope: "user-library-read",
+    scope: "user-library-read user-top-read",
     redirect_uri: redirect_uri,
   });
 
@@ -61,7 +68,7 @@ async function getData(endpoint) {
   const response = await fetch("https://api.spotify.com/v1" + endpoint, {
     method: "get",
     headers: {
-      Authorization: "Bearer " + global.access_token,
+      Authorization: "Bearer " + global.access_token
     },
   });
 
@@ -75,6 +82,35 @@ app.get("/dashboard", async (req, res) => {
 
   res.render("dashboard", { user: userInfo, tracks: tracks.items });
 });
+
+app.get("/user-input-page", function(req, res){
+  console.log("user input page click worked.");
+  res.render("user-input-page");
+});
+
+app.post("/recommendations-for-user", async function(req, res){
+  console.log("recommendations for user button worked");
+  const seed_genres = req.body.seed_genres;
+  const params1 = new URLSearchParams({
+    limit: 20,
+    offset: 0,
+    time_range: "long_term"
+  })
+  const track_data = await getData("/me/top/tracks?" + params1);
+  const artists_data = await getData("/me/top/artists?" + params1);
+  const seed_tracks = track_data.items.map(o => o.id);
+  const seed_artists = artists_data.items.map(o => o.id);
+  console.log(track_data.items.map(o=>o.name));
+  console.log(artists_data.items.map(o=>o.name));
+  const params = new URLSearchParams({
+    seed_artist: seed_artists,
+    seed_genres: seed_genres,
+    seed_tracks: seed_tracks
+  });
+  const data = await getData("/recommendations?" + params);
+  console.log(data);
+  //res.render("recommendation-for-user", {tracks: data.tracks });
+})
 
 app.get("/recommendations", async (req, res) => {
   const artist_id = req.query.artist;

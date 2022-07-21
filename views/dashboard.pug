@@ -4,6 +4,9 @@ block content
     h1 Welcome #{user.display_name}!
     img(src=user.images[0].url, class="circular_image")
 
+    form(method="get" action="/user-input-page")
+      input(type="submit", value="open user input")
+      
     table 
       each t in tracks 
         tr 
