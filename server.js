@@ -30,7 +30,7 @@ app.get("/authorize", (req, res) => {
   var auth_query_parameters = new URLSearchParams({
     response_type: "code",
     client_id: client_id,
-    scope: "user-library-read user-top-read",
+    scope: "user-library-read user-top-read playlist-modify-public playlist-modify-private",
     redirect_uri: redirect_uri,
   });
 
@@ -110,21 +110,47 @@ app.post("/recommendations-for-user", async function(req, res){
     seed_tracks: seed_tracks
   });
   const data = await getData("/recommendations?" + params);
-  console.log(data);
+  const list_of_uris = data.tracks.map(o => o.uri).join(",")
+  console.log(list_of_uris);
   res.render("recommendation-for-user", {tracks: data.tracks });
-  res.redirect("/create_recommendation_playlist");
+
+  var body = JSON.stringify({
+    "name": "Recommendation Playlist"
+  });
+  const response = await fetch("https://api.spotify.com/v1/users/"+global.user_id+"/playlists", {
+    method: "POST",
+    body: body,
+    contentType: 'application/json',
+    headers: {
+      'Authorization':"Bearer " + global.access_token
+    },
+  });
+
+  const playlist_id = JSON.parse(response);
+  console.log(playlist_id);
+
+  // await fetch("https://api.spotify.com/v1/playlists/"+playlist_id+"/tracks", {
+  //   method: "POST",
+  //   body: list_of_uris,
+  //   contentType: 'application/json',
+  //   headers: {
+  //     'Authorization':"Bearer " + global.access_token
+  //   },
+  // }).then(playlist => {
+  //   console.log(playlist);
+  //   return playlist.json();
+  // }).catch(err => {
+  //   console.log(err);
+  // });
+
+
+
+  //res.redirect("/create_recommendation_playlist");
 });
 
 app.get("/create_recommendation_playlist", async function(req, res){
-  var body = new URLSearchParams({
-    "name": "Recommendation Playlist",
-    "description": "new playlist",
-    "public": false,
-  });
-
-  const response = await fetch("https://api.spotify.com/v1/users/"+global.user_id+"/playlists" + body, {
-    method: "post"
-  });
+  console.log("create playlist worked.");
+  
 })
 
 let listener = app.listen(3000, function () {
