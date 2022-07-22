@@ -20,6 +20,7 @@ const client_id = process.env['CLIENT_ID'];
 const client_secret = process.env['CLIENT_SECRET'];
 
 global.access_token;
+global.user_id;
 
 app.get("/", function (req, res) {
   res.render("index");
@@ -80,6 +81,7 @@ app.get("/dashboard", async (req, res) => {
   const userInfo = await getData("/me");
   const tracks = await getData("/me/tracks?limit=10");
 
+  global.user_id = userInfo.id;
   res.render("dashboard", { user: userInfo, tracks: tracks.items });
 });
 
@@ -110,21 +112,20 @@ app.post("/recommendations-for-user", async function(req, res){
   const data = await getData("/recommendations?" + params);
   console.log(data);
   res.render("recommendation-for-user", {tracks: data.tracks });
-})
+  res.redirect("/create_recommendation_playlist");
+});
 
-app.get("/recommendations", async (req, res) => {
-  const artist_id = req.query.artist;
-  const track_id = req.query.track;
-
-  const params = new URLSearchParams({
-    seed_artists: artist_id,
-    seed_genres: "rock",
-    seed_tracks: track_id,
+app.get("/create_recommendation_playlist", async function(req, res){
+  var body = new URLSearchParams({
+    "name": "Recommendation Playlist",
+    "description": "new playlist",
+    "public": false,
   });
 
-  const data = await getData("/recommendations?" + params);
-  res.render("recommendation", { tracks: data.tracks });
-});
+  const response = await fetch("https://api.spotify.com/v1/users/"+global.user_id+"/playlists" + body, {
+    method: "post"
+  });
+})
 
 let listener = app.listen(3000, function () {
   console.log(
