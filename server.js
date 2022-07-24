@@ -97,7 +97,7 @@ app.post("/recommendations-for-user", async function(req, res){
     limit: 20,
     offset: 0,
     time_range: "medium_term"
-  })
+  });
   const track_data = await getData("/me/top/tracks?" + params1);
   const artists_data = await getData("/me/top/artists?" + params1);
   const seed_tracks = track_data.items.map(o => o.id).slice(0,3).join(',');
@@ -110,12 +110,12 @@ app.post("/recommendations-for-user", async function(req, res){
     seed_tracks: seed_tracks
   });
   const data = await getData("/recommendations?" + params);
-  const list_of_uris = data.tracks.map(o => o.uri).join(",")
+  const list_of_uris = data.tracks.map(o => o.uri).join(',');
   console.log(list_of_uris);
   res.render("recommendation-for-user", {tracks: data.tracks });
 
   var body = JSON.stringify({
-    "name": "Recommendation Playlist"
+    "name": "Recommendation"
   });
   const response = await fetch("https://api.spotify.com/v1/users/"+global.user_id+"/playlists", {
     method: "POST",
@@ -126,22 +126,31 @@ app.post("/recommendations-for-user", async function(req, res){
     },
   });
 
-  const playlist_id = JSON.parse(response);
+  const data1 = await response.json();
+  const playlist_id = data1.id;
+
   console.log(playlist_id);
 
-  // await fetch("https://api.spotify.com/v1/playlists/"+playlist_id+"/tracks", {
-  //   method: "POST",
-  //   body: list_of_uris,
-  //   contentType: 'application/json',
-  //   headers: {
-  //     'Authorization':"Bearer " + global.access_token
-  //   },
-  // }).then(playlist => {
-  //   console.log(playlist);
-  //   return playlist.json();
-  // }).catch(err => {
-  //   console.log(err);
-  // });
+  var body2 = JSON.stringify({
+    "uris": list_of_uris
+  });
+
+  const params2 = new URLSearchParams({
+    uris: list_of_uris
+  });
+
+  const response2 = await fetch("https://api.spotify.com/v1/playlists/"+playlist_id+"/tracks?" + params2, {
+    method: "POST",
+    contentType: 'application/json',
+    headers: {
+      'Authorization':"Bearer " + global.access_token
+    },
+  });
+
+  const data2 = await response2.json();
+  console.log(data2);
+
+  console.log("adding songs to playlist worked");
 
 
 
