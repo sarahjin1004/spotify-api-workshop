@@ -11,7 +11,10 @@ block content
         input(type='text', name='limit', placeholder="10")
         br
         p Target Tempo
-        input(type='text', name='target_tempo', placeholder="Enter decimal from 0 to 1")
+        input(type='text', name='target_tempo', placeholder="Enter a number in BPM. (Ex: 140)")
+        br
+        p Target Key
+        input(type='text', name='target_key', placeholder="Enter a number from 0 to 11.")
         br
         p Target Danceability
         input(type='text', name='target_danceability', placeholder="Enter decimal from 0 to 1")
@@ -26,7 +29,7 @@ block content
         input(type='text', name='target_acousticness', placeholder="Enter decimal from 0 to 1")
         br
         p Target Popularity 
-        input(type='text', name='target_popularity', placeholder="Enter decimal from 0 to 1")
+        input(type='text', name='target_popularity', placeholder="Enter a number from 0 to 100")
         br
 
         input(type='submit', value='get recommendations')

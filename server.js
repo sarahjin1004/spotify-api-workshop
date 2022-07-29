@@ -77,6 +77,14 @@ async function getData(endpoint) {
   return data;
 }
 
+function getAverage(arr) {
+  var sum = 0;
+  for (var i = 0; i < arr.length; i++) {
+    sum += arr[i];
+  }
+  return sum / arr.length;
+}
+
 app.get("/dashboard", async (req, res) => {
   const userInfo = await getData("/me");
   const tracks = await getData("/me/tracks?limit=10");
@@ -92,22 +100,42 @@ app.get("/user-input-page", function(req, res){
 
 app.post("/recommendations-for-user", async function(req, res){
   console.log("recommendations for user button worked");
-  const seed_genres = req.body.seed_genres;
   const params1 = new URLSearchParams({
     limit: 20,
     offset: 0,
     time_range: "medium_term"
   });
+
   const track_data = await getData("/me/top/tracks?" + params1);
   const artists_data = await getData("/me/top/artists?" + params1);
+
+  const trackIds = track_data.items.map(o => o.id).join(',');
+  var audioFeatures = await getData("/audio-features?ids="+trackIds);
+  console.log(audioFeatures);
+  var optionalParams = {
+    target_danceability: getAverage(audioFeatures.audio_features.map(o=> o.danceability)),
+    target_energy: getAverage(audioFeatures.audio_features.map(o=> o.energy)),
+    target_acousticness: getAverage(audioFeatures.audio_features.map(o=> o.acousticness)),
+    target_tempo: getAverage(audioFeatures.audio_features.map(o=> o.tempo)),
+    target_valence: getAverage(audioFeatures.audio_features.map(o=> o.valence))
+  }
+
+  console.log(optionalParams);
+
+
   const seed_tracks = track_data.items.map(o => o.id).slice(0,3).join(',');
   const seed_artists = artists_data.items.map(o => o.id)[0];
-  console.log(seed_tracks);
-  console.log(seed_artists);
+  console.log("target key is "+ req.body.target_key);
+  console.log("target tempo is "+req.body.target_tempo);
   const params = new URLSearchParams({
     seed_artists: seed_artists,
-    seed_genres: seed_genres,
-    seed_tracks: seed_tracks
+    seed_genres: req.body.seed_genres,
+    seed_tracks: seed_tracks,
+    limit: req.body.limit || 10,
+    target_danceability: req.body.target_danceability || optionalParams.target_danceability,
+    target_energy:req.body.target_energy || optionalParams.target_energy,
+    target_acousticness:req.body.target_acousticness || optionalParams.target_acousticness,
+    target_tempo: req.body.target_tempo || optionalParams.target_tempo,
   });
   const data = await getData("/recommendations?" + params);
   const list_of_uris = data.tracks.map(o => o.uri).join(',');
@@ -149,12 +177,6 @@ app.post("/recommendations-for-user", async function(req, res){
 
   const data2 = await response2.json();
   console.log(data2);
-
-  console.log("adding songs to playlist worked");
-
-
-
-  //res.redirect("/create_recommendation_playlist");
 });
 
 app.get("/create_recommendation_playlist", async function(req, res){
