@@ -74,9 +74,10 @@ async function getData(endpoint) {
   return data;
 }
 
-async function postData(endpoint) {
+async function postData(endpoint, body) {
   const response = await fetch("https://api.spotify.com/v1" + endpoint, {
     method: "POST",
+    body: body,
     contentType: 'application/json',
     headers: {
       'Authorization':"Bearer " + global.access_token
@@ -108,14 +109,14 @@ app.get("/user-input-page", function(req, res){
 });
 
 app.post("/recommendations-for-user", async function(req, res){
-  const params1 = new URLSearchParams({
+  const me_params = new URLSearchParams({
     limit: 20,
     offset: 0,
     time_range: "medium_term"
   });
 
-  const track_data = await getData("/me/top/tracks?" + params1);
-  const artists_data = await getData("/me/top/artists?" + params1);
+  const track_data = await getData("/me/top/tracks?" + me_params);
+  const artists_data = await getData("/me/top/artists?" + me_params);
 
   const trackIds = track_data.items.map(o => o.id).join(',');
   var audioFeatures = await getData("/audio-features?ids="+trackIds);
@@ -130,7 +131,7 @@ app.post("/recommendations-for-user", async function(req, res){
 
   const seed_tracks = track_data.items.map(o => o.id).slice(0,3).join(',');
   const seed_artists = artists_data.items.map(o => o.id)[0];
-  const params = new URLSearchParams({
+  const recommend_params = new URLSearchParams({
     seed_artists: seed_artists,
     seed_genres: req.body.seed_genres,
     seed_tracks: seed_tracks,
@@ -140,16 +141,17 @@ app.post("/recommendations-for-user", async function(req, res){
     target_acousticness:req.body.target_acousticness || optionalParams.target_acousticness,
     target_tempo: req.body.target_tempo || optionalParams.target_tempo,
   });
-  const data = await getData("/recommendations?" + params);
+  const data = await getData("/recommendations?" + recommend_params);
   const list_of_uris = data.tracks.map(o => o.uri).join(',');
-  
-  res.render("recommendation-for-user", {tracks: data.tracks });
 
-  const params4 = new URLSearchParams({
-    name: "Recommendation"
+  res.render("recommendation-for-user", {tracks: data.tracks, playlist_name: req.body.playlist_name });
+
+  var params1 = JSON.stringify({
+    "name": req.body.playlist_name
   });
 
-  var data1 = await postData("/users/"+global.user_id+"/playlists" + params4);
+  var data1 = await postData("/users/"+global.user_id+"/playlists", params1);
+  console.log(data1);
 
   const playlist_id = data1.id;
 
@@ -157,7 +159,7 @@ app.post("/recommendations-for-user", async function(req, res){
     uris: list_of_uris
   });
 
-  var data2 = await postData("/playlists/"+playlist_id+"/tracks?" + params2);
+  var data2 = await postData("/playlists/"+playlist_id+"/tracks?" + params2, "");
   console.log(data2);
 });
 

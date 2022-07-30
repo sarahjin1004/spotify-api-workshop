@@ -3,7 +3,11 @@ extends layout.pug
 block content 
     h1 User Input Page
     h3 You may customize your parameters to get best recommendations for your music taste.
+    h4 If you do not specify optional params, they will be averaged from your top 20 tracks.
     form(method="post" action="/recommendations-for-user")
+        p Playlist Name REQUIRED
+        input(type='text', name='playlist_name', placeholder='Recommended Playlist')
+        br
         p Seed Genres REQUIRED
         input(type='text', name='seed_genres', placeholder='pop,classical')
         br
