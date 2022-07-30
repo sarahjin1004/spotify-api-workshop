@@ -74,6 +74,19 @@ async function getData(endpoint) {
   return data;
 }
 
+async function postData(endpoint) {
+  const response = await fetch("https://api.spotify.com/v1" + endpoint, {
+    method: "POST",
+    contentType: 'application/json',
+    headers: {
+      'Authorization':"Bearer " + global.access_token
+    },
+  });
+
+  const data = await response.json();
+  return data;
+}
+
 function getAverage(arr) {
   var sum = 0;
   for (var i = 0; i < arr.length; i++) {
@@ -132,34 +145,20 @@ app.post("/recommendations-for-user", async function(req, res){
   
   res.render("recommendation-for-user", {tracks: data.tracks });
 
-  var body = JSON.stringify({
-    "name": "Recommendation"
-  });
-  const response = await fetch("https://api.spotify.com/v1/users/"+global.user_id+"/playlists", {
-    method: "POST",
-    body: body,
-    contentType: 'application/json',
-    headers: {
-      'Authorization':"Bearer " + global.access_token
-    },
+  const params4 = new URLSearchParams({
+    name: "Recommendation"
   });
 
-  const data1 = await response.json();
+  var data1 = await postData("/users/"+global.user_id+"/playlists" + params4);
+
   const playlist_id = data1.id;
 
   const params2 = new URLSearchParams({
     uris: list_of_uris
   });
 
-  const response2 = await fetch("https://api.spotify.com/v1/playlists/"+playlist_id+"/tracks?" + params2, {
-    method: "POST",
-    contentType: 'application/json',
-    headers: {
-      'Authorization':"Bearer " + global.access_token
-    },
-  });
-
-  const data2 = await response2.json();
+  var data2 = await postData("/playlists/"+playlist_id+"/tracks?" + params2);
+  console.log(data2);
 });
 
 let listener = app.listen(3000, function () {
