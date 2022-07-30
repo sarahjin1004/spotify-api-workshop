@@ -4,32 +4,23 @@ block content
     h1 User Input Page
     h3 You may customize your parameters to get best recommendations for your music taste.
     form(method="post" action="/recommendations-for-user")
-        p Seed Genres
+        p Seed Genres REQUIRED
         input(type='text', name='seed_genres', placeholder='pop,classical')
         br
-        p Limit
+        p Limit OPTIONAL
         input(type='text', name='limit', placeholder="10")
         br
-        p Target Tempo
-        input(type='text', name='target_tempo', placeholder="Enter a number in BPM. (Ex: 140)")
+        p Target Tempo OPTIONAL
+        input(type='text', name='target_tempo', placeholder="140")
         br
-        p Target Key
-        input(type='text', name='target_key', placeholder="Enter a number from 0 to 11.")
+        p Target Danceability OPTIONAL
+        input(type='text', name='target_danceability', placeholder="0.3")
         br
-        p Target Danceability
-        input(type='text', name='target_danceability', placeholder="Enter decimal from 0 to 1")
+        p Target Energy OPTIONAL
+        input(type='text', name='target_energy', placeholder="0.3")
         br
-        p Target Energy 
-        input(type='text', name='target_energy', placeholder="Enter decimal from 0 to 1")
-        br
-        p Target Instrumentalness 
-        input(type='text', name='target_instrumentalness', placeholder="Enter decimal from 0 to 1")
-        br
-        p Target Acousticness
-        input(type='text', name='target_acousticness', placeholder="Enter decimal from 0 to 1")
-        br
-        p Target Popularity 
-        input(type='text', name='target_popularity', placeholder="Enter a number from 0 to 100")
+        p Target Acousticness OPTIONAL
+        input(type='text', name='target_acousticness', placeholder="0.3")
         br
 
         input(type='submit', value='get recommendations')

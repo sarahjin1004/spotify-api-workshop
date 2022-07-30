@@ -3,10 +3,7 @@ import fetch from "node-fetch";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 dotenv.config();
-//var express = require('express');
-//var fetch = require('node-fetch-commonjs');
-//var bodyParser = require("body-parser");
-//require('dotenv').config();
+
 const app = express();
 
 app.set("views", "./views");
@@ -94,12 +91,10 @@ app.get("/dashboard", async (req, res) => {
 });
 
 app.get("/user-input-page", function(req, res){
-  console.log("user input page click worked.");
   res.render("user-input-page");
 });
 
 app.post("/recommendations-for-user", async function(req, res){
-  console.log("recommendations for user button worked");
   const params1 = new URLSearchParams({
     limit: 20,
     offset: 0,
@@ -111,7 +106,7 @@ app.post("/recommendations-for-user", async function(req, res){
 
   const trackIds = track_data.items.map(o => o.id).join(',');
   var audioFeatures = await getData("/audio-features?ids="+trackIds);
-  console.log(audioFeatures);
+
   var optionalParams = {
     target_danceability: getAverage(audioFeatures.audio_features.map(o=> o.danceability)),
     target_energy: getAverage(audioFeatures.audio_features.map(o=> o.energy)),
@@ -120,13 +115,8 @@ app.post("/recommendations-for-user", async function(req, res){
     target_valence: getAverage(audioFeatures.audio_features.map(o=> o.valence))
   }
 
-  console.log(optionalParams);
-
-
   const seed_tracks = track_data.items.map(o => o.id).slice(0,3).join(',');
   const seed_artists = artists_data.items.map(o => o.id)[0];
-  console.log("target key is "+ req.body.target_key);
-  console.log("target tempo is "+req.body.target_tempo);
   const params = new URLSearchParams({
     seed_artists: seed_artists,
     seed_genres: req.body.seed_genres,
@@ -139,7 +129,7 @@ app.post("/recommendations-for-user", async function(req, res){
   });
   const data = await getData("/recommendations?" + params);
   const list_of_uris = data.tracks.map(o => o.uri).join(',');
-  console.log(list_of_uris);
+  
   res.render("recommendation-for-user", {tracks: data.tracks });
 
   var body = JSON.stringify({
@@ -157,12 +147,6 @@ app.post("/recommendations-for-user", async function(req, res){
   const data1 = await response.json();
   const playlist_id = data1.id;
 
-  console.log(playlist_id);
-
-  var body2 = JSON.stringify({
-    "uris": list_of_uris
-  });
-
   const params2 = new URLSearchParams({
     uris: list_of_uris
   });
@@ -176,13 +160,7 @@ app.post("/recommendations-for-user", async function(req, res){
   });
 
   const data2 = await response2.json();
-  console.log(data2);
 });
-
-app.get("/create_recommendation_playlist", async function(req, res){
-  console.log("create playlist worked.");
-  
-})
 
 let listener = app.listen(3000, function () {
   console.log(

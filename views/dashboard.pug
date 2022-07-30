@@ -4,9 +4,8 @@ block content
     h1 Welcome #{user.display_name}!
     img(src=user.images[0].url, class="circular_image")
 
-    form(method="get" action="/user-input-page")
-      input(type="submit", value="open user input")
-      
+    h3 The last 10 songs you have played:
+
     table 
       each t in tracks 
         tr 
@@ -17,3 +16,6 @@ block content
           td #{artist_name}
           td #{song_name}
           td: a(href=preview_url) Preview
+
+    form(method="get" action="/user-input-page")
+      input(type="submit", value="Click HERE for customized recommendation feature")
