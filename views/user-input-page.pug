@@ -9,7 +9,9 @@ block content
         input(type='text', name='playlist_name', placeholder='Recommended Playlist')
         br
         p Seed Genres REQUIRED
-        input(type='text', name='seed_genres', placeholder='pop,classical')
+        select(name='seed_genres')
+            each val in Genres
+                option=val
         br
         p Limit OPTIONAL
         input(type='text', name='limit', placeholder="10")

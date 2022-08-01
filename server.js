@@ -104,8 +104,10 @@ app.get("/dashboard", async (req, res) => {
   res.render("dashboard", { user: userInfo, tracks: tracks.items });
 });
 
-app.get("/user-input-page", function(req, res){
-  res.render("user-input-page");
+app.get("/user-input-page", async function(req, res){
+  const genres = await getData("/recommendations/available-genre-seeds");
+  console.log(genres);
+  res.render("user-input-page", {Genres: genres.genres});
 });
 
 app.post("/recommendations-for-user", async function(req, res){
