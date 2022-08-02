@@ -148,21 +148,21 @@ app.post("/recommendations-for-user", async function(req, res){
 
   res.render("recommendation-for-user", {tracks: data.tracks, playlist_name: req.body.playlist_name });
 
-  var params1 = JSON.stringify({
-    "name": req.body.playlist_name
-  });
+  // var params1 = JSON.stringify({
+  //   "name": req.body.playlist_name
+  // });
 
-  var data1 = await postData("/users/"+global.user_id+"/playlists", params1);
-  console.log(data1);
+  // var data1 = await postData("/users/"+global.user_id+"/playlists", params1);
+  // console.log(data1);
 
-  const playlist_id = data1.id;
+  // const playlist_id = data1.id;
 
-  const params2 = new URLSearchParams({
-    uris: list_of_uris
-  });
+  // const params2 = new URLSearchParams({
+  //   uris: list_of_uris
+  // });
 
-  var data2 = await postData("/playlists/"+playlist_id+"/tracks?" + params2, "");
-  console.log(data2);
+  // var data2 = await postData("/playlists/"+playlist_id+"/tracks?" + params2, "");
+  // console.log(data2);
 });
 
 let listener = app.listen(3000, function () {
